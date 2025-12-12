@@ -10,14 +10,11 @@ sourceCompatibility = JavaVersion.VERSION_22
 targetCompatibility = JavaVersion.VERSION_22
 
 repositories {
+    mavenLocal()
     mavenCentral()
 
     maven {
-        url = "https://maven.pkg.github.com/rubbaboy/Qilletni"
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
     }
 }
 

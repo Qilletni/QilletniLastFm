@@ -1,9 +1,10 @@
-name: lastfm
-version: 1.0.0
+name: qilletni/lastfm
+version: 1.0.0-SNAPSHOT
 author: Adam Yarris
 provider: dev.qilletni.lib.lastfm.LastFmServiceProvider
 native_bind_factory: dev.qilletni.lib.lastfm.LastFmNativeFunctionBindingFactory
 native_classes:
   - dev.qilletni.lib.lastfm.LastFmFunctions
 dependencies:
-  - postgres:^1.0.0
+  qilletni/std: 1.0.0-SNAPSHOT
+  qilletni/postgres: ^1.0.0-SNAPSHOT

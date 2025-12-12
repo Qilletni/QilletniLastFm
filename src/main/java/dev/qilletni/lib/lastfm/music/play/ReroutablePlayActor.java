@@ -1,8 +1,8 @@
 package dev.qilletni.lib.lastfm.music.play;
 
 import dev.qilletni.api.music.ConsolePlayActor;
-import dev.qilletni.api.music.PlayActor;
 import dev.qilletni.api.music.Track;
+import dev.qilletni.api.music.play.PlayActor;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;

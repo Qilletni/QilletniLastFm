@@ -6,12 +6,13 @@ import dev.qilletni.api.lib.persistence.PackageConfig;
 import dev.qilletni.api.music.MusicCache;
 import dev.qilletni.api.music.MusicFetcher;
 import dev.qilletni.api.music.MusicTypeConverter;
-import dev.qilletni.api.music.PlayActor;
 import dev.qilletni.api.music.StringIdentifier;
 import dev.qilletni.api.music.factories.AlbumTypeFactory;
 import dev.qilletni.api.music.factories.CollectionTypeFactory;
 import dev.qilletni.api.music.factories.SongTypeFactory;
 import dev.qilletni.api.music.orchestration.TrackOrchestrator;
+import dev.qilletni.api.music.play.PlayActor;
+import dev.qilletni.api.music.strategies.MusicStrategies;
 import dev.qilletni.lib.lastfm.database.HibernateUtil;
 import dev.qilletni.lib.lastfm.music.LastFmMusicTypeConverter;
 import dev.qilletni.lib.lastfm.music.LastFmMusicCache;
@@ -19,6 +20,7 @@ import dev.qilletni.lib.lastfm.music.LastFmMusicFetcher;
 import dev.qilletni.lib.lastfm.music.LastFmStringIdentifier;
 import dev.qilletni.lib.lastfm.music.auth.LastFmAuthorizer;
 import dev.qilletni.lib.lastfm.music.play.ReroutablePlayActor;
+import dev.qilletni.lib.lastfm.music.strategies.LastFmMusicStrategies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,8 @@ public class LastFmServiceProvider implements ServiceProvider {
     private MusicTypeConverter musicTypeConverter;
     private StringIdentifier stringIdentifier;
     private LastFmAuthorizer authorizer;
+    private LastFmMusicStrategies musicStrategies;
+    private PlayActor playActor;
 
     private static ServiceProvider serviceProviderInstance;
 
@@ -52,34 +56,18 @@ public class LastFmServiceProvider implements ServiceProvider {
             var lastFmMusicFetcher = new LastFmMusicFetcher();
             musicFetcher = lastFmMusicFetcher;
             musicCache = new LastFmMusicCache(lastFmMusicFetcher);
-            trackOrchestrator = defaultTrackOrchestratorFunction.apply(new ReroutablePlayActor(), musicCache);
+            playActor = new ReroutablePlayActor();
+            trackOrchestrator = defaultTrackOrchestratorFunction.apply(playActor, musicCache);
             
             musicTypeConverter = new LastFmMusicTypeConverter(musicCache);
+            musicStrategies = new LastFmMusicStrategies();
 
             serviceProviderInstance = this;
-
-            sayHello(musicCache);
         });
-    }
-    
-    private void sayHello(LastFmMusicCache musicCache) {
-//        var trackOptional = musicCache.getTrack("God Knows", "Knocked Loose");
-//
-//        if (trackOptional.isEmpty()) {
-//            LOGGER.error("Track not found");
-//            return;
-//        }
-//
-//        var track = trackOptional.get();
-//        LOGGER.info("Track found: {}", track);
-        
-//        LastFmAPI.getInstance().getLovedTracks("RubbaBoy", new Page()).join();
     }
 
     @Override
     public void shutdown() {
-//        authorizer.shutdown();
-//        ExecutorServiceUtility.shutdown(PlaylistCreator.EXECUTOR_SERVICE);
     }
 
     @Override
@@ -103,6 +91,11 @@ public class LastFmServiceProvider implements ServiceProvider {
     }
 
     @Override
+    public MusicStrategies<?, ?> getMusicStrategies() {
+        return Objects.requireNonNull(musicStrategies, "ServiceProvider#initialize must be invoked to initialize MusicStrategies");
+    }
+
+    @Override
     public MusicTypeConverter getMusicTypeConverter() {
         return Objects.requireNonNull(musicTypeConverter, "ServiceProvider#initialize must be invoked to initialize MusicTypeConverter");
     }
@@ -114,6 +107,11 @@ public class LastFmServiceProvider implements ServiceProvider {
         }
 
         return stringIdentifier;
+    }
+
+    @Override
+    public PlayActor getPlayActor() {
+        return Objects.requireNonNull(playActor, "ServiceProvider#initialize must be invoked to initialize PlayActor");
     }
 
     private void initConfig() {
