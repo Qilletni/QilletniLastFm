@@ -28,7 +28,7 @@ native fun getUser(user) // TODO
  * @param[@type string] user The username of the user to get the loved tracks of
  * @returns[@type lastfm.LastFmResult] The result of the request, with data being a list of songs, and wrapped data as a list of [@type lastfm.LovedTrack]
  */
-native fun getLovedTracks(user) // TODO
+native fun getLovedTracks(user)
 
 /**
  * Gets the tracks favorited by the user.
@@ -37,7 +37,7 @@ native fun getLovedTracks(user) // TODO
  * @param[@type lastfm.Page] page The page of the request
  * @returns[@type lastfm.LastFmResult] The result of the request, with data being a list of songs, and wrapped data as a list of [@type lastfm.LovedTrack]
  */
-native fun getLovedTracks(user, page) // TODO
+native fun getLovedTracks(user, page)
 
 // TODO: get tags
 
@@ -124,6 +124,9 @@ native fun getTopTracks(user, period, page)
 //native fun getWeeklyTrackChart(user)
 
 
+/**
+ * A paged response information.
+ */
 entity Page {
     /**
      * The page index.
@@ -148,6 +151,13 @@ entity Attr {
     Attr(user, totalPages, page, perPage, total)
 }
 
+/**
+ * A response from the Last.FM API. This may either contain data from the response, or error information.
+ * To ensure standard Qilletni response types such as `song[]` or `Artist[]`, functions will often return direct music
+ * types in the `data` field. If the API returned additional information, such as rank number or play count, this is
+ * placed in the `wrqappedData`. The type of both `data` and `wrappedData` are specified in the function that returns
+ * this entity.
+ */
 entity LastFmResult {
 
     string errorMessage
