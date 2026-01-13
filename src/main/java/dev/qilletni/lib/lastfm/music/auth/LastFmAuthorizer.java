@@ -55,8 +55,10 @@ public class LastFmAuthorizer {
     private CompletableFuture<String> requestSessionToken() {
         try {
             Desktop.getDesktop().browse(URI.create(AUTH_REQUEST_URL.formatted(apiKey)));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            System.out.println("Please open the following in your browser:");
+            System.out.println(AUTH_REQUEST_URL.formatted(apiKey));
+//            throw new RuntimeException(e);
         }
 
         var codeFuture = new CompletableFuture<String>();

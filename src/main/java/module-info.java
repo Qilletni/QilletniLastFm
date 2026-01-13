@@ -8,4 +8,5 @@ module QilletniLastFm.main {
     requires java.persistence;
     requires jdk.jfr;
     requires org.hibernate.orm.core;
+    requires java.sql;
 }

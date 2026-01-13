@@ -48,6 +48,7 @@ public class LastFmServiceProvider implements ServiceProvider {
     @Override
     public CompletableFuture<Void> initialize(BiFunction<PlayActor, MusicCache, TrackOrchestrator> defaultTrackOrchestratorFunction, PackageConfig packageConfig) {
         this.packageConfig = packageConfig;
+        populateInitialConfig();
         initConfig();
 
         authorizer = new LastFmAuthorizer(packageConfig, packageConfig.getOrThrow("apiKey"), packageConfig.getOrThrow("apiSecret"));
@@ -114,6 +115,24 @@ public class LastFmServiceProvider implements ServiceProvider {
         return Objects.requireNonNull(playActor, "ServiceProvider#initialize must be invoked to initialize PlayActor");
     }
 
+    /**
+     * Populate the config if it's empty (i.e. first run).
+     */
+    private void populateInitialConfig() {
+        packageConfig.loadConfig();
+
+        if (packageConfig.get("dbUrl").isEmpty() && packageConfig.get("dbUsername").isEmpty() && packageConfig.get("dbPassword").isEmpty()) {
+            LOGGER.debug("Last.fm config is empty, populating with default values");
+
+            packageConfig.set("dbUrl", "jdbc:postgresql://localhost:5435/qilletni_lastfm");
+            packageConfig.set("dbUsername", "qilletni");
+            packageConfig.set("dbPassword", "pass");
+            packageConfig.saveConfig();
+        } else {
+            LOGGER.debug("Last.fm config already populated, skipping");
+        }
+    }
+
     private void initConfig() {
         packageConfig.loadConfig();
 
@@ -129,6 +148,16 @@ public class LastFmServiceProvider implements ServiceProvider {
 
         if (!allFound) {
             throw new ConfigInitializeException("Last.Fm config is missing required options, aborting");
+        }
+
+        if (!"true".equals(packageConfig.get("databaseCreated").orElse("false"))) {
+            if (!HibernateUtil.createDatabaseIfNotExists(packageConfig.getOrThrow("dbUrl"), packageConfig.getOrThrow("dbUsername"), packageConfig.getOrThrow("dbPassword"))) {
+                LOGGER.warn("Exiting due to failed database creation, check your database");
+                System.exit(1);
+            }
+
+            packageConfig.set("databaseCreated", "true");
+            packageConfig.saveConfig();
         }
 
         HibernateUtil.initializeSessionFactory(packageConfig.getOrThrow("dbUrl"), packageConfig.getOrThrow("dbUsername"), packageConfig.getOrThrow("dbPassword"));

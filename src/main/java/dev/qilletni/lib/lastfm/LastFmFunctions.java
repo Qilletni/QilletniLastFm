@@ -372,7 +372,7 @@ public class LastFmFunctions {
     }
     
     private EntityType createEmptyAtr() {
-        return entityInitializer.initializeEntity("Attr", 0, 0, 0, 0);
+        return entityInitializer.initializeEntity("Attr", "", 0, 0, 0, 0);
     }
 
     private record LovedTrackWrapper(SongType track, long dateUts, String dateText) {}
